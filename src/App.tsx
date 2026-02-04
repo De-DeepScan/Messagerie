@@ -19,7 +19,7 @@ function App() {
   const [isTyping, setIsTyping] = useState(false)
   const [isFadingOut, setIsFadingOut] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const [customInput, setCustomInput] = useState('')
+
   const messageQueueRef = useRef<Message[]>([])
   const isProcessingRef = useRef(false)
 
@@ -158,32 +158,6 @@ function App() {
         )}
       </main>
 
-      <footer className="messagerie-footer">
-        <div className="test-controls">
-          <div className="test-predefined">
-            {predefinedMessages.map(m => (
-              <button key={m.id} onClick={() => sendPredefinedMessage(m.id)}>
-                {m.content.slice(0, 20)}
-              </button>
-            ))}
-          </div>
-          <form className="test-custom" onSubmit={(e) => {
-            e.preventDefault()
-            if (customInput.trim()) {
-              sendCustomMessage(customInput.trim())
-              setCustomInput('')
-            }
-          }}>
-            <input
-              type="text"
-              value={customInput}
-              onChange={(e) => setCustomInput(e.target.value)}
-              placeholder="Message custom..."
-            />
-            <button type="submit">Envoyer</button>
-          </form>
-        </div>
-      </footer>
     </div>
   )
 }
