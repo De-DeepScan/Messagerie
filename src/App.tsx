@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { gamemaster } from './gamemaster-client'
+import { getVoiceIdByName, generateSpeech } from './utils/elevenlabs' // Import the new service
 import messagesData from './data/messages.json'
 import './App.css'
 
@@ -11,6 +12,7 @@ interface Message {
 }
 
 const DISPLAY_DURATION = 5000
+const VOICE_NAME = "Aria" // The name of the voice to search for
 
 const predefinedMessages: Message[] = messagesData as Message[]
 
@@ -20,8 +22,47 @@ function App() {
   const [isFadingOut, setIsFadingOut] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [customInput, setCustomInput] = useState('')
+  
+  // New ref to store the specific Voice ID for Aria
+  const ariaVoiceIdRef = useRef<string | null>(null)
+  // Ref to keep track of currently playing audio so we can stop it if needed
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null)
+
   const messageQueueRef = useRef<Message[]>([])
   const isProcessingRef = useRef(false)
+
+  // 1. Fetch Voice ID on Mount
+  useEffect(() => {
+    const initVoice = async () => {
+      const id = await getVoiceIdByName(VOICE_NAME)
+      if (id) {
+        console.log(`[Messagerie] Voice ID found for ${VOICE_NAME}: ${id}`)
+        ariaVoiceIdRef.current = id
+      }
+    }
+    initVoice()
+  }, [])
+
+  const playTTS = async (text: string) => {
+    if (!ariaVoiceIdRef.current) return
+
+    // Stop any currently playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current = null
+    }
+
+    // Generate and play
+    const audio = await generateSpeech(text, ariaVoiceIdRef.current)
+    if (audio) {
+      // Use volume from your gamemaster client
+      const volume = gamemaster.audioStatus.iaVolume
+      audio.volume = volume
+      
+      currentAudioRef.current = audio
+      audio.play().catch(e => console.error("Audio play failed", e))
+    }
+  }
 
   const showMessage = (message: Message): Promise<void> => {
     return new Promise((resolve) => {
@@ -29,6 +70,9 @@ function App() {
       setIsTyping(true)
       setIsFadingOut(false)
       setIsVisible(true)
+
+      // 2. Trigger TTS immediately when message starts
+      playTTS(message.content)
 
       let charIndex = 0
       const content = message.content
