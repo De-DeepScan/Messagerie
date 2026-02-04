@@ -487,6 +487,8 @@ export const gamemaster = {
       payload: Record<string, unknown>;
     }) => void,
   ) {
+    // Remove previous listener to prevent duplicates (React StrictMode calls useEffect twice)
+    socket.off("command");
     socket.on("command", (data: Command) => {
       callback({ action: data.action, payload: data.payload });
     });
@@ -510,14 +512,17 @@ export const gamemaster = {
   },
 
   onMessage(callback: (message: unknown) => void) {
+    socket.off("game-message");
     socket.on("game-message", callback);
   },
 
   onConnect(callback: () => void) {
+    socket.off("connect", callback);
     socket.on("connect", callback);
   },
 
   onDisconnect(callback: () => void) {
+    socket.off("disconnect", callback);
     socket.on("disconnect", callback);
   },
 

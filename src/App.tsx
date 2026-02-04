@@ -82,6 +82,8 @@ function App() {
   }
 
   const sendPredefinedMessage = (messageId: string) => {
+    console.log('[Messagerie] sendPredefinedMessage called:', messageId)
+    console.trace('[Messagerie] Call stack:')
     const message = predefinedMessages.find(m => m.id === messageId)
     if (message) {
       addMessageToQueue(message)
@@ -89,6 +91,8 @@ function App() {
   }
 
   const sendCustomMessage = (content: string) => {
+    console.log('[Messagerie] sendCustomMessage called:', content)
+    console.trace('[Messagerie] Call stack:')
     const customMessage: Message = {
       id: `custom-${Date.now()}`,
       content,
