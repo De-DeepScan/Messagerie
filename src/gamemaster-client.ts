@@ -1,6 +1,8 @@
 import { io, Socket } from "socket.io-client";
 
-const BACKOFFICE_URL = "http://192.168.10.1:3000";
+// const BACKOFFICE_URL = "http://192.168.10.1:3000"; // ESD MAC
+// const BACKOFFICE_URL = "http://192.168.1.46:3000"; // THOMAS HOME
+const BACKOFFICE_URL = "http://10.14.73.40:3000"; // THOMAS ESD
 
 // =====================
 // Game Types
@@ -415,6 +417,7 @@ socket.on("connect", () => {
       }, 100);
     }
   }
+
   if (audioUnlocked && audioConfig.enabled) {
     socket.emit("register-audio-player", {});
   }
